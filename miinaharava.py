@@ -3,7 +3,6 @@ from haravasto import NAPIT
 leveys = 800
 korkeus = 600
 print("Miinaharava")
-moi pöytäkone
 
 
 haravasto.lataa_kuvat("spritet")
@@ -37,7 +36,12 @@ def piirra():
     for i in range(int(leveys / 40)):
         for j in range(int((korkeus-korkeus/5) / 40)):
             haravasto.lisaa_piirrettava_ruutu(" ", i * 40, j * 40)
-        
+    haravasto.piirra_tekstia(
+        str(aika), 
+        leveys - leveys / 10,
+        korkeus - korkeus / 10,
+        vari=(255,0,0,255)
+    ) 
     
     haravasto.piirra_ruudut() 
  
