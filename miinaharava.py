@@ -1,25 +1,10 @@
 import haravasto
 from haravasto import NAPIT
-
+leveys = 800
+korkeus = 600
 print("Miinaharava")
-while True:
-    try:
-        leveys = int(input("Anna pelikentän leveys: "))
-        if leveys < 0:
-            leveys = int(input("Anna pelikentän leveys: "))
-        #else:            
-    except ValueError:
-        leveys = int(input("Anna pelikentän leveys: "))    
-    finally:
-        try:
-            korkeus = int(input("Anna pelikentän korkeus: ")) 
-            if korkeus < 0:
-                korkeus = int(input("Anna pelikentän korkeus: "))
-        except ValueError:
-            korkeus = int(input("Anna pelikentän korkeus: "))    
-        finally:
-            break
-    
+moi pöytäkone
+
 
 haravasto.lataa_kuvat("spritet")
 haravasto.luo_ikkuna(int(leveys), int(korkeus))
