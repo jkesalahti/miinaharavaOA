@@ -3,105 +3,22 @@ import haravasto
 from haravasto import NAPIT
 import json
 from datetime import datetime
+from kentta import (
+    luo_kentta,
+    miinoita_kentta,
+    laske_viereiset_miinat,
+    flood_fill,
+    tarkista_voitto
+)
+from tilastot import (
+    tallenna_tilasto,
+    nayta_tilastot,
+    tyhjenna_tilastot
+)
 
 #PELIN TILA
 tila = {}
 
-#KENTÄN KÄSITTELY
-
-#KENTÄN LUOMINEN
-def luo_kentta(leveys, korkeus):
-    kentta = []
-
-    for _ in range(korkeus):
-        rivi = []
-
-        for _ in range(leveys):
-            rivi.append(" ")
-
-        kentta.append(rivi)
-    return kentta
-
-#KENTÄN MIINOITTAMINEN
-def miinoita_kentta():
-    vapaat_ruudut = []
-
-    for rivi in range(tila["korkeus"]):
-        for sarake in range(tila["leveys"]):
-            vapaat_ruudut.append((rivi, sarake))
-
-    for _ in range(tila["miinoja"]):
-
-        indeksi = random.randint(
-            0,
-        len(vapaat_ruudut) - 1
-        )
-        rivi, sarake = vapaat_ruudut.pop(indeksi)
-        tila["kentta"][rivi][sarake] = "X"
-
-#MIINOJEN LASKEMINEN RUUDUN YMPÄRILLÄ
-def laske_miinat_ruudun_ymparilla(rivi, sarake):
-    miinoja = 0
-
-    for r in range (rivi -1, rivi + 2):
-        for s in range(sarake -1, sarake +2):
-
-            if(
-                0 <= r <= tila["korkeus"] - 1
-                and
-                0 <= s <= tila["leveys"] - 1
-            ):
-                if r == rivi and s == sarake:
-                    continue
-
-                if tila["kentta"][r][s] == "X":
-                    miinoja += 1
-
-    return miinoja
-
-#VIEREISTEN MIINOJEN LASKEMINEN
-def laske_viereiset_miinat():
-    for rivi in range(tila["korkeus"]):
-        for sarake in range(tila["leveys"]):
-
-            if tila["kentta"][rivi][sarake] == "X":
-                continue
-
-            miinojen_maara = laske_miinat_ruudun_ymparilla(
-                rivi, 
-                sarake
-            )
-
-            tila["kentta"][rivi][sarake] = str(miinojen_maara)
-
-def flood_fill(rivi, sarake):
-    kasiteltavat = [(rivi, sarake)]
-
-    while kasiteltavat:
-        rivi, sarake = kasiteltavat.pop()
-
-        tila["nakyva_kentta"][rivi][sarake] = (
-            tila["kentta"][rivi][sarake]
-        )
-
-        if tila["kentta"][rivi][sarake] != "0":
-            continue
-
-        for r in range(rivi - 1, rivi + 2):
-            for s in range(sarake - 1, sarake + 2):
-
-                if (
-                    0 <= r < tila["korkeus"]
-                    and
-                    0 <= s < tila["leveys"]
-                ):
-                    if (
-                        tila["nakyva_kentta"][r][s]
-                        ==
-                        tila["kentta"][r][s]
-                    ):
-                        continue
-                    kasiteltavat.append((r, s))
 
 #LASKETAAN LIPPUJEN MÄÄRÄ
 def laske_liput():
@@ -115,86 +32,6 @@ def laske_liput():
                 liput += 1
 
     return liput
-
-#TARKISTETAAN VOITTO
-def tarkista_voitto():
-    avattuja = 0
-
-    for rivi in range(tila["korkeus"]):
-        for sarake in range(tila["leveys"]):
-
-            if (
-                tila["kentta"][rivi][sarake] != "X"
-                and
-                tila["nakyva_kentta"][rivi][sarake]
-                ==
-                tila["kentta"][rivi][sarake]
-            ):
-                avattuja += 1
-
-
-    turvallisia =(
-            tila["leveys"]
-            * tila["korkeus"]
-            - tila["miinoja"]
-        )
-
-    if avattuja == turvallisia:
-        tila["voitto"] = True
-        tallenna_tilasto("voitto")
-        print("Voitit pelin!")
-
-#TILASTOJEN NÄYTTÄMINEN
-def nayta_tilastot():
-    try:
-        with open(
-            "tilastot.json",
-            "r",
-            encoding="utf-8"
-        ) as tiedosto:
-            tilastot = json.load(tiedosto)
-    except FileNotFoundError:
-        print("Tilastoja ei ole vielä.")
-        return
-
-    print("\n=== TILASTOT ===\n")
-    for peli in tilastot:
-        print(
-            f"{peli["aika"]} | "
-            f"{peli["tulos"]} | "
-            f"{peli["leveys"]}x{peli["korkeus"]} | "
-            f"miinoja {peli["miinoja"]} | "
-            f"vuorot {peli["vuorot"]} | "
-            f"kesto {peli["kesto"]} s"
-        )
-
-#TILASTOJEN TALLENTAMINEN
-def tallenna_tilasto(tulos):
-    uusi_tilasto = {
-        "aika": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "kesto": tila["aika"],
-        "vuorot": tila["vuorot"],
-        "tulos": tulos,
-        "leveys": tila["leveys"],
-        "korkeus": tila["korkeus"],
-        "miinoja": tila["miinoja"]
-    }
-
-    try:
-        with open("tilastot.json", "r", encoding="utf-8") as tiedosto:
-            tilastot = json.load(tiedosto)
-    except (FileNotFoundError, json.JSONDecodeError):
-        tilastot = []
-
-    tilastot.append(uusi_tilasto)
-
-    with open("tilastot.json", "w", encoding="utf-8") as tiedosto:
-        json.dump(
-            tilastot,
-            tiedosto,
-            indent=4,
-            ensure_ascii=False
-        )
 
 #ARVOJEN KYSYMINEN
 def kysy_positiivinen_luku(teksti):
@@ -227,6 +64,8 @@ def kysy_miinojen_maara(leveys, korkeus):
 #HARAVASTON KÄSITTELIJÄT
 def hiiri_kasittelija(x, y, nappi, muokkausnapit):
     if tila["havio"] or tila["voitto"]:
+        if nappi == haravasto.HIIRI_VASEN:
+            haravasto.lopeta()
         return
 
     sarake = int(x // 40)
@@ -252,7 +91,7 @@ def hiiri_kasittelija(x, y, nappi, muokkausnapit):
     tila ["vuorot"] += 1
 
     if tila["kentta"][rivi][sarake] == "0":
-        flood_fill(rivi, sarake)
+        flood_fill(rivi, sarake, tila)
     else:
         tila["nakyva_kentta"][rivi][sarake] =(
             tila["kentta"][rivi][sarake]
@@ -261,7 +100,7 @@ def hiiri_kasittelija(x, y, nappi, muokkausnapit):
     if tila["kentta"][rivi][sarake] == "X":
         tila["havio"] = True
 
-        tallenna_tilasto("häviö")
+        tallenna_tilasto("häviö", tila)
 
         for r in range(tila["korkeus"]):
             for s in range(tila["leveys"]):
@@ -270,8 +109,11 @@ def hiiri_kasittelija(x, y, nappi, muokkausnapit):
 
         print("Hävisit pelin!")
     else:
-        tarkista_voitto()
-    
+        if tarkista_voitto(tila):
+            tila["voitto"] = True
+            tallenna_tilasto("voitto", tila)
+            print("Voitit pelin!")
+
 def raahaus_kasittelija(x, y, dx, dy, nappi, muokkausnapit):
     pass
 
@@ -353,8 +195,8 @@ def uusi_peli():
     )
     
     #MIINOITETAAN KENTTÄ
-    miinoita_kentta()
-    laske_viereiset_miinat()
+    miinoita_kentta(tila)
+    laske_viereiset_miinat(tila)
 
     haravasto.lataa_kuvat("spritet")
     haravasto.luo_ikkuna(
@@ -379,6 +221,7 @@ def nayta_valikko():
         print("\n=== Miinaharava ===")
         print("(U)usi peli")
         print("(T)ilastot")
+        print("(P)oista tilastot")
         print("(L)opeta peli")
         valinta = input("Valitse toiminto: ").strip().lower()
         if valinta == "u":
@@ -388,6 +231,8 @@ def nayta_valikko():
         elif valinta == "l":
             print("Lopetetaan peli")
             break
+        elif valinta == "p":
+            tyhjenna_tilastot()
         else:
             print("\n" * 100)  # Tyhjennetään konsoli
             print("Virheellinen valinta. Yritä uudelleen.")

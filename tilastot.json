@@ -1,38 +1,11 @@
 [
     {
-        "aika": "2026-11-12 17:02:43",
-        "kesto": 116,
-        "vuorot": 9,
-        "tulos": "voitto",
-        "leveys": 9,
-        "korkeus": 9,
-        "miinoja": 5
-    },
-    {
-        "aika": "2026-11-12 17:07:18",
-        "kesto": 1,
-        "vuorot": 2,
+        "aika": "2026-11-12 18:50:28",
+        "kesto": 5,
+        "vuorot": 4,
         "tulos": "häviö",
         "leveys": 9,
         "korkeus": 9,
-        "miinoja": 3
-    },
-    {
-        "aika": "2026-11-12 18:00:30",
-        "kesto": 50,
-        "vuorot": 3,
-        "tulos": "häviö",
-        "leveys": 3,
-        "korkeus": 3,
-        "miinoja": 3
-    },
-    {
-        "aika": "2026-11-12 18:01:08",
-        "kesto": 25,
-        "vuorot": 3,
-        "tulos": "voitto",
-        "leveys": 9,
-        "korkeus": 9,
-        "miinoja": 3
+        "miinoja": 9
     }
 ]
