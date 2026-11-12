@@ -22,11 +22,55 @@ def luo_kentta(leveys, korkeus):
 
 #KENTÄN MIINOITTAMINEN
 def miinoita_kentta():
-    pass
+    vapaat_ruudut = []
+
+    for rivi in range(tila["korkeus"]):
+        for sarake in range(tila["leveys"]):
+            vapaat_ruudut.append((rivi, sarake))
+
+    for _ in range(tila["miinoja"]):
+
+        indeksi = random.randint(
+            0,
+        len(vapaat_ruudut) - 1
+        )
+        rivi, sarake = vapaat_ruudut.pop(indeksi)
+        tila["kentta"][rivi][sarake] = "X"
+
+#MIINOJEN LASKEMINEN RUUDUN YMPÄRILLÄ
+def laske_miinat_ruudun_ymparilla(rivi, sarake):
+    miinoja = 0
+
+    for r in range (rivi -1, rivi + 2):
+        for s in range(sarake -1, sarake +2):
+
+            if(
+                0 <= r <= tila["korkeus"] - 1
+                and
+                0 <= s <= tila["leveys"] - 1
+            ):
+                if r == rivi and s == sarake:
+                    continue
+
+                if tila["kentta"][r][s] == "X":
+                    miinoja += 1
+
+    return miinoja
 
 #VIEREISTEN MIINOJEN LASKEMINEN
 def laske_viereiset_miinat():
-    pass
+    for rivi in range(tila["korkeus"]):
+        for sarake in range(tila["leveys"]):
+
+            if tila["kentta"][rivi][sarake] == "X":
+                continue
+
+            miinojen_maara = laske_miinat_ruudun_ymparilla(
+                rivi, 
+                sarake
+            )
+
+            tila["kentta"][rivi][sarake] = str(miinojen_maara)
 
 #TARKISTETAAN VOITTO
 def tarkista_voitto():
@@ -86,7 +130,37 @@ def kysy_miinojen_maara(leveys, korkeus):
 
 #HARAVASTON KÄSITTELIJÄT
 def hiiri_kasittelija(x, y, nappi, muokkausnapit):
-    pass
+
+    if tila["havio"] or tila["voitto"]:
+        return
+
+    sarake = int(x // 40)
+    rivi = tila["korkeus"]- 1 - int(y // 40)
+    if(
+        rivi < 0
+        or rivi >= tila["korkeus"]
+        or sarake < 0
+        or sarake >= tila["leveys"]
+    ):
+        return
+
+    tila["nakyva_kentta"][rivi][sarake] = (
+        tila["kentta"][rivi][sarake]
+    )
+    print(
+        tila["kentta"][rivi][sarake]
+    )
+
+    if tila["kentta"][rivi][sarake] == "X":
+        tila["havio"] = True
+
+        for r in range(tila["korkeus"]):
+            for s in range(tila["leveys"]):
+                if tila["kentta"][r][s] == "X":
+                    tila["nakyva_kentta"][r][s] = "X"
+
+        print("Hävisit pelin!")
+    
 def raahaus_kasittelija(x, y, dx, dy, nappi, muokkausnapit):
     pass
 
@@ -100,22 +174,25 @@ def nappain_kasittelija(symboli, muokkausnapit):
 def paivitys_kasittelija(kulunut_aika):
     pass
 def kello(kulunut_aika):
-    tila["aika"] += 1
+    if not tila["havio"] and not tila["voitto"]:
+        tila["aika"] += 1
 
+#RUUDUN PIIRTÄMINEN
 def piirra():
     haravasto.tyhjaa_ikkuna()
     haravasto.piirra_tausta()
+
     for rivi in range(len(tila["nakyva_kentta"])):
         for sarake in range(len(tila["nakyva_kentta"][rivi])):
             haravasto.lisaa_piirrettava_ruutu(
                 tila["nakyva_kentta"][rivi][sarake],
                 sarake * 40,
-                rivi * 40
+                (tila["korkeus"] - 1 - rivi) * 40
             )
     haravasto.piirra_tekstia(
         str(tila["aika"]), 
-        tila["leveys"] * 40,
-        tila["korkeus"] * 40,
+        tila["leveys"] * 40 - 50,
+        tila["korkeus"] * 40 + 20,
         vari=(255,0,0,255)
     ) 
     
@@ -155,6 +232,13 @@ def uusi_peli():
         tila["leveys"], 
         tila["korkeus"]
     )
+    
+    #MIINOITETAAN KENTTÄ
+    miinoita_kentta()
+    laske_viereiset_miinat()
+
+    for rivi in tila["kentta"]:
+        print(rivi)
 
     haravasto.lataa_kuvat("spritet")
     haravasto.luo_ikkuna(
