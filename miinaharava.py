@@ -72,11 +72,61 @@ def laske_viereiset_miinat():
 
             tila["kentta"][rivi][sarake] = str(miinojen_maara)
 
+def flood_fill(rivi, sarake):
+    kasiteltavat = [(rivi, sarake)]
+
+    while kasiteltavat:
+        rivi, sarake = kasiteltavat.pop()
+
+        tila["nakyva_kentta"][rivi][sarake] = (
+            tila["kentta"][rivi][sarake]
+        )
+
+        if tila["kentta"][rivi][sarake] != "0":
+            continue
+
+        for r in range(rivi - 1, rivi + 2):
+            for s in range(sarake - 1, sarake + 2):
+
+                if (
+                    0 <= r < tila["korkeus"]
+                    and
+                    0 <= s < tila["leveys"]
+                ):
+                    if (
+                        tila["nakyva_kentta"][r][s]
+                        ==
+                        tila["kentta"][r][s]
+                    ):
+                        continue
+                    kasiteltavat.append((r, s))          
+
 #TARKISTETAAN VOITTO
 def tarkista_voitto():
-    pass
+    avattuja = 0
 
-#TILASTOT
+    for rivi in range(tila["korkeus"]):
+        for sarake in range(tila["leveys"]):
+
+            if (
+                tila["kentta"][rivi][sarake] != "X"
+                and
+                tila["nakyva_kentta"][rivi][sarake]
+                ==
+                tila["kentta"][rivi][sarake]
+            ):
+                avattuja += 1
+
+
+    turvallisia =(
+            tila["leveys"]
+            * tila["korkeus"]
+            - tila["miinoja"]
+        )
+
+    if avattuja == turvallisia:
+        tila["voitto"] = True
+        print("Voitit pelin!")
 
 #TILASTOJEN NÄYTTÄMINEN
 def nayta_tilastot():
@@ -144,12 +194,14 @@ def hiiri_kasittelija(x, y, nappi, muokkausnapit):
     ):
         return
 
-    tila["nakyva_kentta"][rivi][sarake] = (
-        tila["kentta"][rivi][sarake]
-    )
-    print(
-        tila["kentta"][rivi][sarake]
-    )
+    tila ["vuorot"] += 1
+
+    if tila["kentta"][rivi][sarake] == "0":
+        flood_fill(rivi, sarake)
+    else:
+        tila["nakyva_kentta"][rivi][sarake] =(
+            tila["kentta"][rivi][sarake]
+        )
 
     if tila["kentta"][rivi][sarake] == "X":
         tila["havio"] = True
@@ -160,6 +212,8 @@ def hiiri_kasittelija(x, y, nappi, muokkausnapit):
                     tila["nakyva_kentta"][r][s] = "X"
 
         print("Hävisit pelin!")
+    else:
+        tarkista_voitto()
     
 def raahaus_kasittelija(x, y, dx, dy, nappi, muokkausnapit):
     pass
@@ -194,7 +248,7 @@ def piirra():
         tila["leveys"] * 40 - 50,
         tila["korkeus"] * 40 + 20,
         vari=(255,0,0,255)
-    ) 
+    )
     
     haravasto.piirra_ruudut() 
 
@@ -241,12 +295,23 @@ def uusi_peli():
         print(rivi)
 
     haravasto.lataa_kuvat("spritet")
+    '''
+    ikkunan_leveys = max(
+        tila["leveys"] * 40,
+        300
+    )
+    
+    ikkunan_korkeus = max(
+        tila["korkeus"] * 40 + 80,
+        250
+    )     
+    '''
     haravasto.luo_ikkuna(
-        tila["leveys"] * 40, 
+        tila["leveys"] * 40,
         tila["korkeus"] * 40 + 80
         )
 
-    haravasto.aseta_raahaus_kasittelija(hiiri_kasittelija)    
+    haravasto.aseta_raahaus_kasittelija(raahaus_kasittelija)    
     haravasto.aseta_vapautus_kasittelija(vapautus_kasittelija)    
     haravasto.aseta_nappain_kasittelija(nappain_kasittelija)
     haravasto.aseta_hiiri_kasittelija(hiiri_kasittelija)
