@@ -1,0 +1,20 @@
+[
+    {
+        "aika": "2026-11-12 17:02:43",
+        "kesto": 116,
+        "vuorot": 9,
+        "tulos": "voitto",
+        "leveys": 9,
+        "korkeus": 9,
+        "miinoja": 5
+    },
+    {
+        "aika": "2026-11-12 17:07:18",
+        "kesto": 1,
+        "vuorot": 2,
+        "tulos": "häviö",
+        "leveys": 9,
+        "korkeus": 9,
+        "miinoja": 3
+    }
+]

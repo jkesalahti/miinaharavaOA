@@ -1,6 +1,8 @@
 import random
 import haravasto
 from haravasto import NAPIT
+import json
+from datetime import datetime
 
 #PELIN TILA
 tila = {}
@@ -126,29 +128,60 @@ def tarkista_voitto():
 
     if avattuja == turvallisia:
         tila["voitto"] = True
+        tallenna_tilasto("voitto")
         print("Voitit pelin!")
 
 #TILASTOJEN NÄYTTÄMINEN
 def nayta_tilastot():
-    '''
     try:
-        with open("tilastot.txt", "r") as tiedosto:
-            tilastot = tiedosto.readlines()
-            if not tilastot:
-                print("Ei tilastoja.")
-                return
-            print("\n=== Tilastot ===")
-            for rivi in tilastot:
-                print(rivi.strip())
+        with open(
+            "tilastot.json",
+            "r",
+            encoding="utf-8"
+        ) as tiedosto:
+            tilastot = json.load(tiedosto)
     except FileNotFoundError:
-        print("Tilastotiedostoa ei löytynyt.")
-    '''
-    print("\n"* 100)  # Tyhjennetään konsoli
-    print("Tilastoja ei ole vielä toteutettu.")
+        print("Tilastoja ei ole vielä.")
+        return
+
+    print("\n=== TILASTOT ===\n")
+    for peli in tilastot:
+        print(
+            f"{peli["aika"]} | "
+            f"{peli["tulos"]} | "
+            f"{peli["leveys"]}x{peli["korkeus"]} | "
+            f"miinoja {peli["miinoja"]} | "
+            f"vuorot {peli["vuorot"]} | "
+            f"kesto {peli["kesto"]} s"
+        )
 
 #TILASTOJEN TALLENTAMINEN
-def tallenna_tilasto():
-    pass
+def tallenna_tilasto(tulos):
+    uusi_tilasto = {
+        "aika": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "kesto": tila["aika"],
+        "vuorot": tila["vuorot"],
+        "tulos": tulos,
+        "leveys": tila["leveys"],
+        "korkeus": tila["korkeus"],
+        "miinoja": tila["miinoja"]
+    }
+
+    try:
+        with open("tilastot.json", "r", encoding="utf-8") as tiedosto:
+            tilastot = json.load(tiedosto)
+    except (FileNotFoundError, json.JSONDecodeError):
+        tilastot = []
+
+    tilastot.append(uusi_tilasto)
+
+    with open("tilastot.json", "w", encoding="utf-8") as tiedosto:
+        json.dump(
+            tilastot,
+            tiedosto,
+            indent=4,
+            ensure_ascii=False
+        )
 
 #ARVOJEN KYSYMINEN
 def kysy_positiivinen_luku(teksti):
@@ -206,6 +239,8 @@ def hiiri_kasittelija(x, y, nappi, muokkausnapit):
     if tila["kentta"][rivi][sarake] == "X":
         tila["havio"] = True
 
+        tallenna_tilasto("häviö")
+
         for r in range(tila["korkeus"]):
             for s in range(tila["leveys"]):
                 if tila["kentta"][r][s] == "X":
@@ -245,7 +280,7 @@ def piirra():
             )
     haravasto.piirra_tekstia(
         str(tila["aika"]), 
-        tila["leveys"] * 40 - 50,
+        tila["leveys"] * 40 - 80,
         tila["korkeus"] * 40 + 20,
         vari=(255,0,0,255)
     )
@@ -290,9 +325,6 @@ def uusi_peli():
     #MIINOITETAAN KENTTÄ
     miinoita_kentta()
     laske_viereiset_miinat()
-
-    for rivi in tila["kentta"]:
-        print(rivi)
 
     haravasto.lataa_kuvat("spritet")
     '''
