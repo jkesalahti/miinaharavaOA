@@ -16,5 +16,23 @@
         "leveys": 9,
         "korkeus": 9,
         "miinoja": 3
+    },
+    {
+        "aika": "2026-11-12 18:00:30",
+        "kesto": 50,
+        "vuorot": 3,
+        "tulos": "häviö",
+        "leveys": 3,
+        "korkeus": 3,
+        "miinoja": 3
+    },
+    {
+        "aika": "2026-11-12 18:01:08",
+        "kesto": 25,
+        "vuorot": 3,
+        "tulos": "voitto",
+        "leveys": 9,
+        "korkeus": 9,
+        "miinoja": 3
     }
 ]

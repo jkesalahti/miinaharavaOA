@@ -101,7 +101,20 @@ def flood_fill(rivi, sarake):
                         tila["kentta"][r][s]
                     ):
                         continue
-                    kasiteltavat.append((r, s))          
+                    kasiteltavat.append((r, s))
+
+#LASKETAAN LIPPUJEN MÄÄRÄ
+def laske_liput():
+
+    liput = 0
+
+    for rivi in tila["nakyva_kentta"]:
+        for ruutu in rivi:
+
+            if ruutu == "f":
+                liput += 1
+
+    return liput
 
 #TARKISTETAAN VOITTO
 def tarkista_voitto():
@@ -213,7 +226,6 @@ def kysy_miinojen_maara(leveys, korkeus):
 
 #HARAVASTON KÄSITTELIJÄT
 def hiiri_kasittelija(x, y, nappi, muokkausnapit):
-
     if tila["havio"] or tila["voitto"]:
         return
 
@@ -226,7 +238,17 @@ def hiiri_kasittelija(x, y, nappi, muokkausnapit):
         or sarake >= tila["leveys"]
     ):
         return
-
+    #LIPUN LISÄYS
+    if nappi == haravasto.HIIRI_OIKEA:
+        if tila["nakyva_kentta"][rivi][sarake] == " ":
+            if laske_liput() < tila["miinoja"]:
+                tila["nakyva_kentta"][rivi][sarake] = "f"
+        elif tila["nakyva_kentta"][rivi][sarake] == "f":
+            tila["nakyva_kentta"][rivi][sarake] = " "
+        return 
+    #VARMISTETAAN ETTEI LIPUTETTUA RUUTUA AVATA
+    if tila["nakyva_kentta"][rivi][sarake] == "f":
+        return
     tila ["vuorot"] += 1
 
     if tila["kentta"][rivi][sarake] == "0":
@@ -260,8 +282,6 @@ def nappain_kasittelija(symboli, muokkausnapit):
     if symboli == NAPIT.ESCAPE:
         haravasto.lopeta()
 
-def paivitys_kasittelija(kulunut_aika):
-    pass
 def kello(kulunut_aika):
     if not tila["havio"] and not tila["voitto"]:
         tila["aika"] += 1
@@ -278,12 +298,22 @@ def piirra():
                 sarake * 40,
                 (tila["korkeus"] - 1 - rivi) * 40
             )
+
+    #KELLON PIIRTÄMINEN
     haravasto.piirra_tekstia(
         str(tila["aika"]), 
-        tila["leveys"] * 40 - 80,
+        tila["leveys"] * 20 + tila["leveys"] * 10,
         tila["korkeus"] * 40 + 20,
         vari=(255,0,0,255)
     )
+    #LIPPUMITTARIN PIIRTÄMINEN
+    haravasto.piirra_tekstia(
+        str(tila["miinoja"] - laske_liput()), 
+        tila["leveys"] * 20 - tila["leveys"] * 10,
+        tila["korkeus"] * 40 + 20,
+        vari=(255,0,0,255)
+    )
+
     
     haravasto.piirra_ruudut() 
 
@@ -327,17 +357,6 @@ def uusi_peli():
     laske_viereiset_miinat()
 
     haravasto.lataa_kuvat("spritet")
-    '''
-    ikkunan_leveys = max(
-        tila["leveys"] * 40,
-        300
-    )
-    
-    ikkunan_korkeus = max(
-        tila["korkeus"] * 40 + 80,
-        250
-    )     
-    '''
     haravasto.luo_ikkuna(
         tila["leveys"] * 40,
         tila["korkeus"] * 40 + 80
@@ -347,7 +366,6 @@ def uusi_peli():
     haravasto.aseta_vapautus_kasittelija(vapautus_kasittelija)    
     haravasto.aseta_nappain_kasittelija(nappain_kasittelija)
     haravasto.aseta_hiiri_kasittelija(hiiri_kasittelija)
-    haravasto.aseta_toistuva_kasittelija(paivitys_kasittelija, 1/60)
     haravasto.aseta_toistuva_kasittelija(kello, 1)
     haravasto.aseta_piirto_kasittelija(piirra)
 
