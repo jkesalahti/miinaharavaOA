@@ -1,5 +1,5 @@
 # miinaharavaOA
-A Python implementation of the classic Minesweeper game developed as the final project for the Introduction to Python course at the University of Oulu. Features customizable board dimensions, persistent high-score tracking, and complete game statistics storage.
+A Python implementation of the classic Minesweeper game developed as the final project for the Elementary programming course at the University of Oulu. Features customizable board dimensions, persistent high-score tracking, and complete game statistics storage.
  
 ## Overview
  
