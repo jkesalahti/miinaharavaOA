@@ -1,4 +1,5 @@
 import json
+import ikkunasto
 from datetime import datetime
 
 #TILASTOJEN NÄYTTÄMINEN
