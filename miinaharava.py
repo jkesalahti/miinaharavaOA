@@ -1,5 +1,6 @@
 import random
 import haravasto
+import ikkunasto
 from haravasto import NAPIT
 import json
 from datetime import datetime
@@ -7,7 +8,7 @@ from kentta import (
     luo_kentta,
     miinoita_kentta,
     laske_viereiset_miinat,
-    flood_fill,
+    taytto,
     tarkista_voitto
 )
 from tilastot import (
@@ -63,13 +64,14 @@ def kysy_miinojen_maara(leveys, korkeus):
 
 #HARAVASTON KÄSITTELIJÄT
 def hiiri_kasittelija(x, y, nappi, muokkausnapit):
+    #PELIN LOPPUMISEN JÄLKEEN POISTUMINEN
     if tila["havio"] or tila["voitto"]:
         if nappi == haravasto.HIIRI_VASEN:
             haravasto.lopeta()
         return
-
+    #KENTTÄ JAETAAN RUUTUIHIN
     sarake = int(x // 40)
-    rivi = tila["korkeus"]- 1 - int(y // 40)
+    rivi = tila["korkeus"] - 1 - int(y // 40)
     if(
         rivi < 0
         or rivi >= tila["korkeus"]
@@ -89,19 +91,21 @@ def hiiri_kasittelija(x, y, nappi, muokkausnapit):
     if tila["nakyva_kentta"][rivi][sarake] == "f":
         return
     tila ["vuorot"] += 1
+    #RUUDUN AVAAMINEN
+    if nappi == haravasto.HIIRI_VASEN:
+        if tila["kentta"][rivi][sarake] == "0":
+            taytto(rivi, sarake, tila)
+        else:
+            tila["nakyva_kentta"][rivi][sarake] =(
+                tila["kentta"][rivi][sarake]
+            )
 
-    if tila["kentta"][rivi][sarake] == "0":
-        flood_fill(rivi, sarake, tila)
-    else:
-        tila["nakyva_kentta"][rivi][sarake] =(
-            tila["kentta"][rivi][sarake]
-        )
-
+    #MIINAN AVAAMINEN
     if tila["kentta"][rivi][sarake] == "X":
         tila["havio"] = True
 
         tallenna_tilasto("häviö", tila)
-
+        #PALJASTETAAN LOPUT MIINAT
         for r in range(tila["korkeus"]):
             for s in range(tila["leveys"]):
                 if tila["kentta"][r][s] == "X":
@@ -215,8 +219,30 @@ def uusi_peli():
     haravasto.aloita()
 
 
+#LUODAAN ALKUVALIKON IKKUNA
+def luo_ikkuna():
+    ikkuna = ikkunasto.luo_ikkuna("Miinaharava")
+    nappikehys = ikkunasto.luo_kehys(ikkuna)
+    uusi_peli_nappi = ikkunasto.luo_nappi(
+        nappikehys,"Uusi peli", uusi_peli
+        )
+    tilastot_nappi = ikkunasto.luo_nappi(
+        nappikehys, "Tilastot", nayta_tilastot
+        )
+    tyhjenna_nappi = ikkunasto.luo_nappi(
+        nappikehys, "Tyhjennä tilastot", tyhjenna_tilastot
+        )
+    lopeta_nappi = ikkunasto.luo_nappi(
+        nappikehys, "Lopeta peli", ikkunasto.lopeta
+        )
+    ikkunasto.kaynnista()
+
 #ALKUVALIKKO
 def nayta_valikko():
+    luo_ikkuna()
+    
+    
+    """
     while True:
         print("\n=== Miinaharava ===")
         print("(U)usi peli")
@@ -236,7 +262,7 @@ def nayta_valikko():
         else:
             print("\n" * 100)  # Tyhjennetään konsoli
             print("Virheellinen valinta. Yritä uudelleen.")
-
+    """
 
 #PÄÄOHJELMA 
 if __name__ == "__main__":           
