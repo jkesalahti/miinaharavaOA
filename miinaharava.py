@@ -178,63 +178,90 @@ def uusi_peli():
         "voitto": False,
         "havio": False
     }
-    tila["leveys"] = kysy_positiivinen_luku(
-        "Syötä kentän leveys (ruutuina): "
-    )
-    tila["korkeus"] = kysy_positiivinen_luku(
-        "Syötä kentän korkeus (ruutuina): "
-    )
-    kysy_miinojen_maara(
-        tila["leveys"], tila["korkeus"]
-        )
+
+    def aloita_peli():
+        tila["leveys"] = int(ikkunasto.lue_kentan_sisalto(
+                leveyskentta
+            ))
+        tila["korkeus"] = int(ikkunasto.lue_kentan_sisalto(
+                korkeuskentta
+            ))
+        tila["miinoja"] = int(ikkunasto.lue_kentan_sisalto(
+                miinakentta
+                ))
+            
+        tila["kentta"] = luo_kentta(
+            tila["leveys"], 
+            tila["korkeus"]
+            )
+        
+        tila["nakyva_kentta"] = luo_kentta(
+            tila["leveys"], 
+            tila["korkeus"]
+            )
+            
+        #MIINOITETAAN KENTTÄ
+        miinoita_kentta(tila)
+        laske_viereiset_miinat(tila)
+        haravasto.luo_ikkuna(
+                    tila["leveys"] * 40,
+                    tila["korkeus"] * 40 + 80
+                    )
+        
+
+        haravasto.aseta_raahaus_kasittelija(raahaus_kasittelija)    
+        haravasto.aseta_vapautus_kasittelija(vapautus_kasittelija)                
+        haravasto.aseta_nappain_kasittelija(nappain_kasittelija)            
+        haravasto.aseta_hiiri_kasittelija(hiiri_kasittelija)
+        haravasto.aseta_toistuva_kasittelija(kello, 1)
+        haravasto.aseta_piirto_kasittelija(piirra)
+        haravasto.lataa_kuvat("spritet")
+        
+        
+        haravasto.aloita()
+        
+            
+
+    #LUODAAN IKKUNA KENTÄN KOON JA MIINOJEN KYSYMISEEN
+    kyselyikkuna = ikkunasto.luo_ali_ikkuna("Uusi peli")
+    kyselykehys = ikkunasto.luo_kehys(kyselyikkuna)
+
+    ikkunasto.luo_tekstirivi(kyselykehys, "Anna kentän leveys")
+    leveyskentta = ikkunasto.luo_tekstikentta(kyselykehys)
+    ikkunasto.luo_tekstirivi(kyselykehys, "Anna kentän korkeus")
+    korkeuskentta = ikkunasto.luo_tekstikentta(kyselykehys)
+    ikkunasto.luo_tekstirivi(kyselykehys, "Anna miinojen määrä")
+    miinakentta = ikkunasto.luo_tekstikentta(kyselykehys)
+    ikkunasto.luo_vaakaerotin(kyselykehys, 5)
+    pelin_aloitus = ikkunasto.luo_nappi(kyselykehys,"Aloita peli", aloita_peli)
+
     
-    tila["kentta"] = luo_kentta(
-        tila["leveys"], 
-        tila["korkeus"]
-    )
 
-    tila["nakyva_kentta"] = luo_kentta(
-        tila["leveys"], 
-        tila["korkeus"]
-    )
     
-    #MIINOITETAAN KENTTÄ
-    miinoita_kentta(tila)
-    laske_viereiset_miinat(tila)
-
-    haravasto.lataa_kuvat("spritet")
-    haravasto.luo_ikkuna(
-        tila["leveys"] * 40,
-        tila["korkeus"] * 40 + 80
-        )
-
-    haravasto.aseta_raahaus_kasittelija(raahaus_kasittelija)    
-    haravasto.aseta_vapautus_kasittelija(vapautus_kasittelija)    
-    haravasto.aseta_nappain_kasittelija(nappain_kasittelija)
-    haravasto.aseta_hiiri_kasittelija(hiiri_kasittelija)
-    haravasto.aseta_toistuva_kasittelija(kello, 1)
-    haravasto.aseta_piirto_kasittelija(piirra)
-
-    #ALOITETAAN PELI
-    haravasto.aloita()
+    
 
 
 #LUODAAN ALKUVALIKON IKKUNA
 def luo_ikkuna():
     ikkuna = ikkunasto.luo_ikkuna("Miinaharava")
     nappikehys = ikkunasto.luo_kehys(ikkuna)
+    ikkunasto.luo_vaakaerotin(nappikehys, 5)
     uusi_peli_nappi = ikkunasto.luo_nappi(
         nappikehys,"Uusi peli", uusi_peli
         )
+    ikkunasto.luo_vaakaerotin(nappikehys, 2)
     tilastot_nappi = ikkunasto.luo_nappi(
         nappikehys, "Tilastot", nayta_tilastot
         )
+    ikkunasto.luo_vaakaerotin(nappikehys, 2)
     tyhjenna_nappi = ikkunasto.luo_nappi(
         nappikehys, "Tyhjennä tilastot", tyhjenna_tilastot
         )
+    ikkunasto.luo_vaakaerotin(nappikehys, 2)
     lopeta_nappi = ikkunasto.luo_nappi(
         nappikehys, "Lopeta peli", ikkunasto.lopeta
         )
+    ikkunasto.luo_vaakaerotin(nappikehys, 5)
     ikkunasto.kaynnista()
 
 #ALKUVALIKKO
