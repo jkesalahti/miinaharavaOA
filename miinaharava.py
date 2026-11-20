@@ -178,7 +178,6 @@ def uusi_peli():
         "voitto": False,
         "havio": False
     }
-
     def aloita_peli():
         tila["leveys"] = int(ikkunasto.lue_kentan_sisalto(
                 leveyskentta
@@ -217,7 +216,8 @@ def uusi_peli():
         haravasto.aseta_piirto_kasittelija(piirra)
         haravasto.lataa_kuvat("spritet")
         
-        
+        kyselyikkuna.destroy()
+        ikkuna.destroy()
         haravasto.aloita()
         
             
@@ -243,6 +243,7 @@ def uusi_peli():
 
 #LUODAAN ALKUVALIKON IKKUNA
 def luo_ikkuna():
+    global ikkuna
     ikkuna = ikkunasto.luo_ikkuna("Miinaharava")
     nappikehys = ikkunasto.luo_kehys(ikkuna)
     ikkunasto.luo_vaakaerotin(nappikehys, 5)
@@ -264,9 +265,11 @@ def luo_ikkuna():
     ikkunasto.luo_vaakaerotin(nappikehys, 5)
     ikkunasto.kaynnista()
 
+
 #ALKUVALIKKO
 def nayta_valikko():
     luo_ikkuna()
+    
     
     
     """
